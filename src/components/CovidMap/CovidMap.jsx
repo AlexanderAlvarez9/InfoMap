@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   GoogleMap,
   LoadScript,
@@ -7,10 +7,10 @@ import {
 } from '@react-google-maps/api';
 import locations from '../../utils/locations.json';
 
-const Maps = () => {
+const CovidMap = () => {
   const [selected, setSelected] = useState({});
+  const [dataMap, setDataMap] = useState(locations);
   const APIkey = 'AIzaSyCxS2G6G-cvd8FwTQXGYyQ6i_4uGt8hZlo';
-  const newData = [];
   const mapStyles = {
     height: '100vh',
     width: '100%',
@@ -29,33 +29,30 @@ const Maps = () => {
       'https://wuhan-coronavirus-api.laeyoung.endpoint.ainize.ai/jhu-edu/latest'
     );
     const data = await response.json();
-
-    data.map((datas) => {
-      newData.push({
-        CountryName: datas.countryregion,
-        location: {
-          lat: datas.location.lat,
-          lng: datas.location.lng,
-        },
-      });
-    });
+    setDataMap([data]);
+    console.log('nuevaData');
     return data;
   };
 
-  getData();
+  useEffect(() => {
+    getData();
+  }, []);
+
+  // console.error(locations);
+  console.log(dataMap[0]);
 
   return (
     <LoadScript googleMapsApiKey={APIkey}>
-      <GoogleMap mapContainerStyle={mapStyles} zoom={4} center={defaultCenter}>
-        {locations.map((item) => {
-          return (
-            <Marker
-              key={item.id}
-              position={item.location}
-              onClick={() => onSelect(item)}
-            />
-          );
-        })}
+      <GoogleMap mapContainerStyle={mapStyles} zoom={3} center={defaultCenter}>
+        {dataMap !== undefined
+          ? dataMap.map((item) => {
+              <Marker
+                key={item.id}
+                position={item.location}
+                onClick={() => onSelect(item)}
+              />;
+            })
+          : console.log('chao')}
         {selected.location && (
           <InfoWindow
             position={selected.location}
@@ -64,7 +61,7 @@ const Maps = () => {
           >
             <>
               <p>
-                <h2>{selected.CountryName}</h2>
+                <h3>{selected.CountryName}</h3>
               </p>
               <p>Poblacion: {selected.population}</p>
               <p>Migrantes: {selected.migrants}</p>
@@ -82,4 +79,4 @@ const Maps = () => {
   );
 };
 
-export default Maps;
+export default CovidMap;
