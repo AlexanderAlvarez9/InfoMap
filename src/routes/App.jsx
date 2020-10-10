@@ -16,7 +16,7 @@ const App = () => {
             <Route exact path="/" component={Maps} />
             <Route exact path="/general" component={Maps} />
             <Route exact path="/covid" component={CovidMap} />
-            <Route component={Error404} />
+            {/* <Route component={Error404} /> */}
           </Switch>
         </Layout>
       </BrowserRouter>
