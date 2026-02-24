@@ -1,10 +1,16 @@
 import React, { Suspense } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { FirebaseAppProvider } from 'reactfire';
+import { firebaseConfig } from './firebase';
 import App from './routes/App';
 
-ReactDOM.render(
-  <Suspense fallback={'Conectando a la App'}>
-    <App />
-  </Suspense>,
-  document.getElementById('app')
+const container = document.getElementById('app');
+const root = createRoot(container);
+
+root.render(
+  <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+    <Suspense fallback={'Conectando a la App'}>
+      <App />
+    </Suspense>
+  </FirebaseAppProvider>
 );

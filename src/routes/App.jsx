@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import '../assets/styles/containers/App.scss';
 import Layout from '../containers/Layout';
 import Error404 from '../pages/Error404';
@@ -12,12 +12,12 @@ const App = () => {
     <UserContexts.Provider>
       <BrowserRouter>
         <Layout>
-          <Switch>
-            <Route exact path="/" component={Maps} />
-            <Route exact path="/general" component={Maps} />
-            <Route exact path="/covid" component={CovidMap} />
-            {/* <Route component={Error404} /> */}
-          </Switch>
+          <Routes>
+            <Route path="/" element={<Maps />} />
+            <Route path="/general" element={<Maps />} />
+            <Route path="/covid" element={<CovidMap />} />
+            {/* <Route path="*" element={<Error404 />} /> */}
+          </Routes>
         </Layout>
       </BrowserRouter>
     </UserContexts.Provider>

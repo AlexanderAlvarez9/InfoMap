@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import CreateEvent from '../CreateEvent';
-import './Events.scss';
-import { db } from '../../firebase';
+import { addDoc, collection, deleteDoc, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from 'reactfire';
+import { db } from '../../firebase';
+import CreateEvent from '../CreateEvent';
+import './Events.scss';
 
 const Events = () => {
 
@@ -14,13 +15,13 @@ const Events = () => {
   const addOrEditEvent = async (event) => {
     try {
       if (currentId === '') {
-        await db.collection('events').doc().set(event)
+        await addDoc(collection(db, 'events'), event)
         toast('Nuevo Evento Agregado', {
           type: 'success',
           autoClose: 2000
         });
       } else {
-        await db.collection('events').doc(currentId).update(event)
+        await updateDoc(doc(db, 'events', currentId), event)
         toast('Evento Actualizado', {
           type: 'info',
           autoClose: 2000
@@ -39,12 +40,14 @@ const Events = () => {
         type: 'error',
         autoClose: 2000
       });
-      await db.collection('events').doc(id).delete();
+      await deleteDoc(doc(db, 'events', id));
     }
   }
 
   const getEvents = () => {
-    db.collection('events').where('user', '==', user.uid).onSnapshot((querySnapshot) => {
+    if (!user?.uid) return () => {};
+    const q = query(collection(db, 'events'), where('user', '==', user.uid));
+    return onSnapshot(q, (querySnapshot) => {
       const docs = [];
       querySnapshot.forEach(item => {
         docs.push({ ...item.data(), id: item.id })
@@ -54,8 +57,9 @@ const Events = () => {
   }
 
   useEffect(() => {
-    getEvents()
-  }, []);
+    const unsub = getEvents();
+    return () => unsub && unsub();
+  }, [user?.uid]);
 
 
   return (
@@ -98,7 +102,6 @@ const Events = () => {
                     <p>Finalizado</p>
                   }
                 </td>
-                {/* <td>{console.log(dateNow, 'hola')}</td> */}
                 < th > <i className="material-icons text-danger" onClick={() => {
                   setCurrentId(event.id)
                 }}>create</i></th>

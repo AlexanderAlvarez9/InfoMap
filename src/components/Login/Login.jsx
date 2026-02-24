@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import './Login.scss'
-import 'firebase/auth';
-import { db } from '../../firebase';
-import { useFirebaseApp, useUser } from 'reactfire';
+import { auth, db } from '../../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useUser } from 'reactfire';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-require('dotenv').config();
-
 const Login = () => {
-
 
   const [values, setValues] = useState('')
   const [profile, setProfile] = useState(0);
-  const firebase = useFirebaseApp();
-  let user = useUser();
+  const user = useUser();
 
   const userValues = {
     name: '',
@@ -31,17 +28,12 @@ const Login = () => {
     setValues({ ...values, [name]: value });
   };
 
-  const getUsers = async () => {
-    await firebase.auth()
-  }
-
   const handleSingUp = async () => {
     try {
-      await firebase.auth().createUserWithEmailAndPassword(values.email, values.password).then(cred => {
-        return db.collection('users').doc(cred.user.uid).set({
-          ...userValues, email: cred.user.email
-        })
-      })
+      const cred = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        ...userValues, email: cred.user.email
+      });
     } catch (error) {
       toast(error.message, {
         type: 'error',
@@ -51,28 +43,17 @@ const Login = () => {
   }
 
   const handlelogout = async () => {
-    await firebase.auth().signOut();
+    await signOut(auth);
   }
 
   const handleSignIn = async () => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(values.email, values.password)
-        .then(async cred => {
-          await db.collection('users').doc(cred.user.uid).get()
-            .then(userP => setProfile(userP.data().profile));
-        })
+      const cred = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userP = await getDoc(doc(db, 'users', cred.user.uid));
+      if (userP.exists()) setProfile(userP.data().profile);
     } catch (error) {
       alert(error.message)
     }
-  }
-
-  const tests = async () => {
-    firebase.auth().currentUser.updateProfile({
-      displayName: "Jane Q. User",
-      photoURL: "Administrador"
-    })
-    console.log(profile);
-
   }
 
   return (
@@ -115,7 +96,6 @@ const Login = () => {
           <p>Correo Usuario: <br /> {user.email}</p>
           <p>Perfil: {user.photoURL}</p>
           <button onClick={handlelogout}>Cerrar Sesion</button>
-          {/* <button onClick={tests}>Pruebas</button> */}
         </div>
       }
     </React.Fragment>

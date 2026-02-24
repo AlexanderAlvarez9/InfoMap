@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import RollUpUser from './RollUpUser';
-import './Users.scss'
-import { db } from '../../firebase';
+import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { db } from '../../firebase';
+import RollUpUser from './RollUpUser';
+import './Users.scss';
 
 const Users = () => {
 
@@ -13,13 +14,13 @@ const Users = () => {
   const addOrEditUser = async (user) => {
     try {
       if (currentId === '') {
-        await db.collection('users').doc().set(user)
+        await addDoc(collection(db, 'users'), user)
         toast('Nuevo objeto agregado', {
           type: 'success',
           autoClose: 2000
         });
       } else {
-        await db.collection('users').doc(currentId).update(user)
+        await updateDoc(doc(db, 'users', currentId), user)
         toast('Usuario actualizado', {
           type: 'info',
           autoClose: 2000
@@ -38,12 +39,12 @@ const Users = () => {
         type: 'error',
         autoClose: 2000
       });
-      await db.collection('users').doc(id).delete();
+      await deleteDoc(doc(db, 'users', id));
     }
   }
 
   const getUsers = () => {
-    db.collection('users').onSnapshot((querySnapshot) => {
+    return onSnapshot(collection(db, 'users'), (querySnapshot) => {
       const docs = [];
       querySnapshot.forEach(item => {
         docs.push({ ...item.data(), id: item.id })
@@ -53,7 +54,8 @@ const Users = () => {
   }
 
   useEffect(() => {
-    getUsers()
+    const unsub = getUsers();
+    return () => unsub && unsub();
   }, []);
 
   return (

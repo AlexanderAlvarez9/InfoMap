@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './RollUpUser.scss';
 import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const RollUpUser = (props) => {
 
@@ -29,8 +30,8 @@ const RollUpUser = (props) => {
   };
 
   const getUserById = async (id) => {
-    const doc = await db.collection("users").doc(id).get();
-    setValues({ ...doc.data() });
+    const docSnap = await getDoc(doc(db, "users", id));
+    if (docSnap.exists()) setValues({ ...docSnap.data() });
   };
 
   useEffect(() => {
@@ -39,7 +40,6 @@ const RollUpUser = (props) => {
     } else {
       getUserById(props.currentId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentId])
 
   return (

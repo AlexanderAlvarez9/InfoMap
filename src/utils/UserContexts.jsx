@@ -1,5 +1,4 @@
 import React, { createContext, useState } from 'react';
-import { setProfile } from './Action';
 
 export const UserContexts = createContext();
 

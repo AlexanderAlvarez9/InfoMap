@@ -3,7 +3,7 @@ import '../assets/styles/containers/Container.scss';
 
 function Containers(props) {
   return (
-    <div className="container">{props.children}</div>
+    <div className='container'>{props.children}</div>
   )
 }
 

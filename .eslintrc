@@ -5,7 +5,7 @@
     "node": true
   },
   "extends": [
-    "airbnb"
+    "react-app"
   ],
   "globals": {
     "document": false,
@@ -19,12 +19,7 @@
     "expect": true,
     "sinon": true
   },
-  "parser": "babel-eslint",
-  "plugins": [
-    "react",
-    "jsx-a11y",
-    "import"
-  ],
+  "plugins": [],
   "rules": {
     "react/jsx-filename-extension": 0,
     "array-bracket-spacing": 2,
