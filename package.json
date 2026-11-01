@@ -22,7 +22,7 @@
     "reactfire": "^4.2.6"
   },
   "devDependencies": {
-    "sass": "^1.105.0"
+    "sass": "^1.107.0"
   },
   "browserslist": {
     "production": [
